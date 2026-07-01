@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.env
+server/.env
+client/.env
+*.log
+.DS_Store
+work/
+outputs/
+*.tsbuildinfo
+client/vite.config.js
+client/vite.config.d.ts

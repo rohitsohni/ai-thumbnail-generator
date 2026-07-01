@@ -88,7 +88,19 @@ const thumbnailSchema = new mongoose.Schema(
 const Thumbnail =
   mongoose.models.Thumbnail || mongoose.model("Thumbnail", thumbnailSchema);
 
-app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:5173" }));
+app.use(
+  cors({
+    origin(origin, callback) {
+      const allowedOrigin = process.env.CLIENT_URL || "http://localhost:5173";
+      if (!origin || origin === allowedOrigin || origin.endsWith(".vercel.app")) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error("Not allowed by CORS"));
+    },
+  }),
+);
 app.use(express.json({ limit: "2mb" }));
 
 app.get("/api/health", (_request, response) => {
@@ -234,10 +246,14 @@ async function start() {
   });
 }
 
-start().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+if (!process.env.VERCEL) {
+  start().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}
+
+export default app;
 
 function createSvgThumbnail({ title, style, aspectRatio, colors, details }) {
   const dimensions = getDimensions(aspectRatio);

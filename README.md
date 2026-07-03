@@ -24,6 +24,15 @@ GEMINI_IMAGE_MODEL=gemini-3.1-flash-image
 
 Without `GEMINI_API_KEY`, the server uses the built-in local thumbnail renderer as a fallback.
 
+For Vercel production, add the same variables in Project Settings -> Environment Variables:
+
+```bash
+GEMINI_API_KEY=your_google_ai_studio_key
+GEMINI_IMAGE_MODEL=gemini-3.1-flash-image
+```
+
+You can verify the connection at `/api/gemini/status`. It should return `"configured": true`.
+
 ## Project layout
 
 ```text

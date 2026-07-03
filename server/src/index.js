@@ -224,7 +224,7 @@ async function generateThumbnailImage({ title, style, aspectRatio, colors, detai
         type: "image",
         mime_type: "image/jpeg",
         aspect_ratio: aspectRatio,
-        image_size: "2K",
+        image_size: "1K",
       },
     });
 

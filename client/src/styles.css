@@ -58,10 +58,11 @@ textarea {
   padding: 0;
 }
 
-.logoLockup img {
-  display: block;
-  height: 36px;
-  width: auto;
+.logoLockup {
+  color: #111827;
+  font-size: 1.2rem;
+  font-weight: 950;
+  letter-spacing: 0;
 }
 
 .navLinks {
@@ -445,8 +446,8 @@ h1 span {
     top: 10px;
   }
 
-  .logoLockup img {
-    height: 30px;
+  .logoLockup {
+    font-size: 1rem;
   }
 
   .signin {

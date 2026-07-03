@@ -3,7 +3,6 @@ import type { FormEvent } from "react";
 import { useState } from "react";
 import { createThumbnail } from "./lib/api";
 import type { Thumbnail } from "./lib/assets";
-import logo from "./assets/thumbnailgo/logo.svg";
 
 type AuthMode = "register" | "signin";
 type Page = "auth" | "generate" | "account";
@@ -165,7 +164,7 @@ export default function App() {
           }}
           type="button"
         >
-          <img src={logo} alt="ThumbnailGo" />
+          ThumbnailGo
         </button>
         <div className="navActions">
           {signedInUser ? (

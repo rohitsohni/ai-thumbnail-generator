@@ -1,4 +1,4 @@
-import { ImagePlus, Moon, Sparkles, Upload } from "lucide-react";
+import { ImagePlus, Sparkles, Upload } from "lucide-react";
 import type { FormEvent } from "react";
 import { useState } from "react";
 import { createThumbnail } from "./lib/api";
@@ -192,9 +192,6 @@ export default function App() {
               </button>
             </>
           ) : null}
-          <button className="themeButton" type="button" aria-label="Toggle theme">
-            <Moon size={18} />
-          </button>
           {signedInUser ? (
             <button className="signin" onClick={signOut} type="button">
               Sign Out

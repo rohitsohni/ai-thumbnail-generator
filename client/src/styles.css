@@ -89,19 +89,6 @@ textarea {
   gap: 16px;
 }
 
-.themeButton {
-  align-items: center;
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 999px;
-  color: #5f6875;
-  cursor: pointer;
-  display: inline-flex;
-  height: 40px;
-  justify-content: center;
-  width: 40px;
-}
-
 .signin {
   background: transparent;
   border: 0;
@@ -462,8 +449,7 @@ h1 span {
     height: 30px;
   }
 
-  .signin,
-  .themeButton {
+  .signin {
     display: none;
   }
 

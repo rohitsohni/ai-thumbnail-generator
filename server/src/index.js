@@ -278,8 +278,8 @@ function createSvgThumbnailSvg({ title, style, aspectRatio, colors, details }) {
     const y = aspectRatio === "9:16" ? 360 + index * 112 : 260 + index * 92;
     const fontSize = aspectRatio === "9:16" ? 82 : 82;
     return `
-      <text x="${dimensions.width * 0.065}" y="${y + 8}" fill="#000" opacity="0.55" font-family="Arial Black, Impact, sans-serif" font-size="${fontSize}" font-weight="900" letter-spacing="0">${line}</text>
-      <text x="${dimensions.width * 0.06}" y="${y}" fill="#fff" stroke="#111827" stroke-width="10" paint-order="stroke" font-family="Arial Black, Impact, sans-serif" font-size="${fontSize}" font-weight="900" letter-spacing="0">${line}</text>
+      <text x="${dimensions.width * 0.065}" y="${y + 8}" fill="#000" opacity="0.55" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="${fontSize}" font-weight="900" letter-spacing="0">${line}</text>
+      <text x="${dimensions.width * 0.06}" y="${y}" fill="#fff" stroke="#111827" stroke-width="10" paint-order="stroke" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="${fontSize}" font-weight="900" letter-spacing="0">${line}</text>
     `;
   });
 
@@ -315,10 +315,10 @@ function createSvgThumbnailSvg({ title, style, aspectRatio, colors, details }) {
       </g>
       <g filter="url(#shadow)">
         <rect x="${dimensions.width * 0.055}" y="${dimensions.height * 0.105}" width="${dimensions.width * 0.44}" height="${dimensions.height * 0.115}" rx="24" fill="#fff"/>
-        <text x="${dimensions.width * 0.085}" y="${dimensions.height * 0.178}" fill="#111827" font-family="Arial Black, Arial, sans-serif" font-size="${aspectRatio === "9:16" ? 38 : 40}" font-weight="900">${escapeXml(category.label)}</text>
+        <text x="${dimensions.width * 0.085}" y="${dimensions.height * 0.178}" fill="#111827" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="${aspectRatio === "9:16" ? 38 : 40}" font-weight="900">${escapeXml(category.label)}</text>
         ${headline.join("")}
         <rect x="${dimensions.width * 0.06}" y="${dimensions.height * 0.735}" width="${dimensions.width * 0.43}" height="${dimensions.height * 0.095}" rx="18" fill="#ffffff"/>
-        <text x="${dimensions.width * 0.088}" y="${dimensions.height * 0.795}" fill="#111827" font-family="Arial Black, Arial, sans-serif" font-size="${aspectRatio === "9:16" ? 30 : 34}" font-weight="900">${safeDetails.slice(0, aspectRatio === "9:16" ? 22 : 24)}</text>
+        <text x="${dimensions.width * 0.088}" y="${dimensions.height * 0.795}" fill="#111827" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="${aspectRatio === "9:16" ? 30 : 34}" font-weight="900">${safeDetails.slice(0, aspectRatio === "9:16" ? 22 : 24)}</text>
       </g>
       ${keywordArt}
       <rect x="18" y="18" width="${dimensions.width - 36}" height="${dimensions.height - 36}" rx="28" fill="none" stroke="#fff" stroke-width="10" opacity="0.82"/>
@@ -337,8 +337,8 @@ function createSportsThumbnailSvg({ title, aspectRatio, colors, tagline }) {
   const headline = words.slice(0, 3).map((line, index) => {
     const y = aspectRatio === "9:16" ? 430 + index * 118 : 225 + index * 112;
     return `
-      <text x="${dimensions.width * 0.06 + 8}" y="${y + 10}" fill="#000" opacity="0.48" font-family="Arial Black, Impact, sans-serif" font-size="${titleFontSize}" font-weight="900">${line}</text>
-      <text x="${dimensions.width * 0.06}" y="${y}" fill="#fff" stroke="#07111f" stroke-width="12" paint-order="stroke" font-family="Arial Black, Impact, sans-serif" font-size="${titleFontSize}" font-weight="900">${line}</text>
+      <text x="${dimensions.width * 0.06 + 8}" y="${y + 10}" fill="#000" opacity="0.48" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="${titleFontSize}" font-weight="900">${line}</text>
+      <text x="${dimensions.width * 0.06}" y="${y}" fill="#fff" stroke="#07111f" stroke-width="12" paint-order="stroke" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="${titleFontSize}" font-weight="900">${line}</text>
     `;
   });
 
@@ -383,10 +383,10 @@ function createSportsThumbnailSvg({ title, aspectRatio, colors, tagline }) {
       </g>
       <g filter="url(#deepShadow)">
         <rect x="${dimensions.width * 0.055}" y="${dimensions.height * 0.09}" width="${dimensions.width * 0.28}" height="${dimensions.height * 0.105}" rx="20" fill="#ffffff"/>
-        <text x="${dimensions.width * 0.083}" y="${dimensions.height * 0.158}" fill="#07111f" font-family="Arial Black, Arial, sans-serif" font-size="${aspectRatio === "9:16" ? 36 : 38}" font-weight="900">SPORTS</text>
+        <text x="${dimensions.width * 0.083}" y="${dimensions.height * 0.158}" fill="#07111f" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="${aspectRatio === "9:16" ? 36 : 38}" font-weight="900">SPORTS</text>
         ${headline.join("")}
         <rect x="${dimensions.width * 0.06}" y="${dimensions.height * 0.73}" width="${dimensions.width * 0.32}" height="${dimensions.height * 0.095}" rx="18" fill="#ffffff"/>
-        <text x="${dimensions.width * 0.088}" y="${dimensions.height * 0.792}" fill="#07111f" font-family="Arial Black, Arial, sans-serif" font-size="${aspectRatio === "9:16" ? 30 : 34}" font-weight="900">${tagline}</text>
+        <text x="${dimensions.width * 0.088}" y="${dimensions.height * 0.792}" fill="#07111f" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="${aspectRatio === "9:16" ? 30 : 34}" font-weight="900">${tagline}</text>
       </g>
       <g filter="url(#deepShadow)">
         <circle cx="${dimensions.width * 0.81}" cy="${dimensions.height * 0.32}" r="${dimensions.width * 0.095}" fill="#ffffff"/>
@@ -453,9 +453,9 @@ function createKeywordArt(category, dimensions, colors) {
     return `
       ${commonPanel}
       <g filter="url(#softShadow)">
-        <text x="${x + panelWidth * 0.25}" y="${y + panelHeight * 0.45}" fill="#16a34a" font-family="Arial Black, Impact, sans-serif" font-size="150" font-weight="900">$</text>
+        <text x="${x + panelWidth * 0.25}" y="${y + panelHeight * 0.45}" fill="#16a34a" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="150" font-weight="900">$</text>
         <rect x="${x + panelWidth * 0.16}" y="${y + panelHeight * 0.56}" width="${panelWidth * 0.68}" height="86" rx="18" fill="#111827"/>
-        <text x="${x + panelWidth * 0.22}" y="${y + panelHeight * 0.68}" fill="#fff" font-family="Arial Black, Arial, sans-serif" font-size="48" font-weight="900">100X</text>
+        <text x="${x + panelWidth * 0.22}" y="${y + panelHeight * 0.68}" fill="#fff" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="48" font-weight="900">100X</text>
       </g>
     `;
   }
@@ -466,7 +466,7 @@ function createKeywordArt(category, dimensions, colors) {
       <g filter="url(#softShadow)">
         <rect x="${x + panelWidth * 0.16}" y="${y + panelHeight * 0.25}" width="${panelWidth * 0.68}" height="${panelHeight * 0.42}" rx="22" fill="#111827"/>
         <rect x="${x + panelWidth * 0.2}" y="${y + panelHeight * 0.3}" width="${panelWidth * 0.6}" height="${panelHeight * 0.28}" rx="10" fill="${colors.secondary}"/>
-        <text x="${x + panelWidth * 0.24}" y="${y + panelHeight * 0.49}" fill="#fff" font-family="Arial Black, Arial, sans-serif" font-size="58" font-weight="900">${icon}</text>
+        <text x="${x + panelWidth * 0.24}" y="${y + panelHeight * 0.49}" fill="#fff" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="58" font-weight="900">${icon}</text>
         <rect x="${x + panelWidth * 0.34}" y="${y + panelHeight * 0.7}" width="${panelWidth * 0.32}" height="24" rx="12" fill="#111827"/>
       </g>
     `;
@@ -477,7 +477,7 @@ function createKeywordArt(category, dimensions, colors) {
       ${commonPanel}
       <g filter="url(#softShadow)">
         <circle cx="${x + panelWidth * 0.5}" cy="${y + panelHeight * 0.35}" r="96" fill="#111827"/>
-        <text x="${x + panelWidth * 0.26}" y="${y + panelHeight * 0.43}" fill="#fff" font-family="Arial Black, Impact, sans-serif" font-size="96" font-weight="900">VS</text>
+        <text x="${x + panelWidth * 0.26}" y="${y + panelHeight * 0.43}" fill="#fff" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="96" font-weight="900">VS</text>
         <path d="M ${x + panelWidth * 0.24} ${y + panelHeight * 0.62} L ${x + panelWidth * 0.76} ${y + panelHeight * 0.62} L ${x + panelWidth * 0.66} ${y + panelHeight * 0.78} L ${x + panelWidth * 0.34} ${y + panelHeight * 0.78} Z" fill="${colors.primary}"/>
       </g>
     `;
@@ -517,7 +517,7 @@ function createKeywordArt(category, dimensions, colors) {
       <circle cx="${x + panelWidth * 0.6}" cy="${y + panelHeight * 0.31}" r="12" fill="#111827"/>
       <path d="M ${x + panelWidth * 0.37} ${y + panelHeight * 0.41} Q ${x + panelWidth * 0.5} ${y + panelHeight * 0.52} ${x + panelWidth * 0.64} ${y + panelHeight * 0.41}" fill="none" stroke="#111827" stroke-width="16" stroke-linecap="round"/>
       <rect x="${x + panelWidth * 0.22}" y="${y + panelHeight * 0.58}" width="${panelWidth * 0.56}" height="${panelHeight * 0.24}" rx="42" fill="#111827"/>
-      <text x="${x + panelWidth * 0.36}" y="${y + panelHeight * 0.74}" fill="${colors.accent}" font-family="Arial Black, Arial, sans-serif" font-size="64" font-weight="900">${icon}</text>
+      <text x="${x + panelWidth * 0.36}" y="${y + panelHeight * 0.74}" fill="${colors.accent}" font-family="DejaVu Sans, Liberation Sans, sans-serif" font-size="64" font-weight="900">${icon}</text>
     </g>
   `;
 }

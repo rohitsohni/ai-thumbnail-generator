@@ -203,10 +203,7 @@ app.delete("/api/thumbnails/:id", async (request, response) => {
 
 async function generateThumbnailImage({ title, style, aspectRatio, colors, details, colorDescription }) {
   if (!geminiApiKey) {
-    return {
-      imageUrl: await createLocalThumbnailPng({ title, style, aspectRatio, colors, details }),
-      provider: "local-fallback",
-    };
+    return generatePollinationsThumbnail({ title, style, aspectRatio, details, colorDescription, colors });
   }
 
   try {
@@ -237,11 +234,62 @@ async function generateThumbnailImage({ title, style, aspectRatio, colors, detai
       provider: geminiModel,
     };
   } catch (error) {
-    console.error("Gemini generation failed, using local fallback:", error.message);
+    console.error("Gemini generation failed, trying Pollinations:", error.message);
+    return generatePollinationsThumbnail({
+      title,
+      style,
+      aspectRatio,
+      details,
+      colorDescription,
+      colors,
+      previousError: error.message,
+    });
+  }
+}
+
+async function generatePollinationsThumbnail({ title, style, aspectRatio, details, colorDescription, colors, previousError }) {
+  try {
+    const dimensions = getDimensions(aspectRatio);
+    const prompt = buildPollinationsThumbnailPrompt({ title, style, details, colorDescription });
+    const url = new URL(`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`);
+    url.searchParams.set("width", String(dimensions.width));
+    url.searchParams.set("height", String(dimensions.height));
+    url.searchParams.set("model", "flux");
+    url.searchParams.set("enhance", "true");
+    url.searchParams.set("private", "true");
+    url.searchParams.set("seed", String(createStableSeed(`${title} ${style} ${details}`)));
+    url.searchParams.set("referrer", "thumbnailgo");
+
+    const response = await fetch(url, {
+      headers: {
+        Accept: "image/*",
+        "User-Agent": "ThumbnailGo/1.0",
+      },
+      signal: AbortSignal.timeout(60000),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Pollinations returned ${response.status}`);
+    }
+
+    const contentType = response.headers.get("content-type") || "image/jpeg";
+    if (!contentType.startsWith("image/")) {
+      throw new Error(`Pollinations returned ${contentType}`);
+    }
+
+    const imageBuffer = Buffer.from(await response.arrayBuffer());
+
+    return {
+      imageUrl: `data:${contentType};base64,${imageBuffer.toString("base64")}`,
+      provider: previousError ? "pollinations-after-gemini-error" : "pollinations",
+      error: previousError,
+    };
+  } catch (error) {
+    console.error("Pollinations generation failed, using local fallback:", error.message);
     return {
       imageUrl: await createLocalThumbnailPng({ title, style, aspectRatio, colors, details }),
-      provider: "local-fallback-after-gemini-error",
-      error: error.message,
+      provider: previousError ? "local-fallback-after-gemini-and-pollinations-error" : "local-fallback-after-pollinations-error",
+      error: [previousError, error.message].filter(Boolean).join(" / "),
     };
   }
 }
@@ -270,6 +318,28 @@ Requirements:
 - Do not add watermarks, fake UI controls, browser chrome, or unreadable tiny text.
 - Make the image visually exciting and clickable.
 `.trim();
+}
+
+function buildPollinationsThumbnailPrompt({ title, style, details, colorDescription }) {
+  return [
+    `Professional YouTube thumbnail for "${title}"`,
+    "cinematic composition, high contrast, vibrant lighting, sharp focus, dramatic subject, viral creator thumbnail style",
+    `visual style: ${style}`,
+    `color palette: ${colorDescription}`,
+    details ? `extra details: ${details}` : "",
+    "large readable title text, clean layout, no watermark, no browser UI, no random tiny text",
+  ]
+    .filter(Boolean)
+    .join(", ");
+}
+
+function createStableSeed(value) {
+  let hash = 0;
+  for (let index = 0; index < value.length; index += 1) {
+    hash = Math.imul(31, hash) + value.charCodeAt(index);
+  }
+
+  return Math.abs(hash) % 1000000;
 }
 
 async function start() {

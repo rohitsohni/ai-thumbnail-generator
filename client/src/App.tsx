@@ -1,7 +1,7 @@
-import { ImagePlus, Sparkles, Upload } from "lucide-react";
+import { ImagePlus, Sparkles, Trash2, Upload } from "lucide-react";
 import type { FormEvent } from "react";
 import { useState } from "react";
-import { createThumbnail } from "./lib/api";
+import { createThumbnail, deleteThumbnail } from "./lib/api";
 import type { Thumbnail } from "./lib/assets";
 
 type AuthMode = "register" | "signin";
@@ -151,6 +151,25 @@ export default function App() {
     setAuthMessage("Signed out.");
     setPage("auth");
     window.location.hash = "auth";
+  }
+
+  async function removeGeneration(generation: Thumbnail) {
+    if (!signedInUser) return;
+
+    const shouldDelete = window.confirm(`Delete "${generation.title}" from your generations?`);
+    if (!shouldDelete) return;
+
+    const updatedGenerations = generations.filter((item) => item._id !== generation._id);
+    setGenerations(updatedGenerations);
+    setLatestGeneration((current) => (current?._id === generation._id ? updatedGenerations[0] ?? null : current));
+    saveStoredGenerations(signedInUser.name, updatedGenerations);
+    setStatusMessage("Generation deleted.");
+
+    try {
+      await deleteThumbnail(generation._id);
+    } catch {
+      // Local browser generations still delete even when the optional backend store is unavailable.
+    }
   }
 
   return (
@@ -310,9 +329,15 @@ export default function App() {
                       <img src={generation.image_url} alt={generation.title} />
                       <div>
                         <strong>{generation.title}</strong>
-                        <a href={generation.image_url} download={`${generation.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.svg`}>
-                          Download
-                        </a>
+                        <div className="generationActions">
+                          <a href={generation.image_url} download={`${generation.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`}>
+                            Download
+                          </a>
+                          <button aria-label={`Delete ${generation.title}`} onClick={() => removeGeneration(generation)} type="button">
+                            <Trash2 size={16} />
+                            Delete
+                          </button>
+                        </div>
                       </div>
                     </article>
                   ))}

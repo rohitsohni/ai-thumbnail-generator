@@ -403,9 +403,34 @@ h1 span {
   width: 100%;
 }
 
+.generationActions {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
 .generationCard a {
   color: #111827;
   font-weight: 900;
+}
+
+.generationActions button {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #ffd3d3;
+  border-radius: 10px;
+  color: #c21f32;
+  cursor: pointer;
+  display: inline-flex;
+  font-weight: 900;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 10px;
+}
+
+.generationActions button:hover {
+  background: #fff2f2;
 }
 
 .emptyState {

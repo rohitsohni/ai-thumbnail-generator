@@ -184,6 +184,23 @@ app.post("/api/thumbnails", async (request, response) => {
   }
 });
 
+app.delete("/api/thumbnails/:id", async (request, response) => {
+  const { id } = request.params;
+
+  if (!id) {
+    response.status(400).json({ message: "Thumbnail id is required" });
+    return;
+  }
+
+  if (mongoose.connection.readyState !== 1) {
+    response.status(204).send();
+    return;
+  }
+
+  await Thumbnail.findByIdAndDelete(id);
+  response.status(204).send();
+});
+
 async function generateThumbnailImage({ title, style, aspectRatio, colors, details, colorDescription }) {
   if (!geminiApiKey) {
     return {

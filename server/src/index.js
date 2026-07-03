@@ -82,6 +82,7 @@ const thumbnailSchema = new mongoose.Schema(
     prompt_used: String,
     user_prompt: String,
     provider: String,
+    generation_error: String,
   },
   { timestamps: true },
 );
@@ -106,6 +107,13 @@ app.use(express.json({ limit: "2mb" }));
 
 app.get("/api/health", (_request, response) => {
   response.json({ ok: true, app: "Thumblify" });
+});
+
+app.get("/api/gemini/status", (_request, response) => {
+  response.json({
+    configured: Boolean(geminiApiKey),
+    model: geminiModel,
+  });
 });
 
 app.get("/api/thumbnails", async (_request, response) => {
@@ -159,6 +167,7 @@ app.post("/api/thumbnails", async (request, response) => {
       prompt_used: prompt,
       user_prompt: additionalDetails,
       provider: imageResult.provider,
+      generation_error: imageResult.error,
       createdAt: new Date().toISOString(),
     };
 
@@ -194,6 +203,12 @@ async function generateThumbnailImage({ title, style, aspectRatio, colors, detai
         details,
         colorDescription,
       }),
+      response_format: {
+        type: "image",
+        mime_type: "image/png",
+        aspect_ratio: aspectRatio,
+        image_size: "2K",
+      },
     });
 
     if (!interaction.output_image?.data) {
@@ -209,6 +224,7 @@ async function generateThumbnailImage({ title, style, aspectRatio, colors, detai
     return {
       imageUrl: await createLocalThumbnailPng({ title, style, aspectRatio, colors, details }),
       provider: "local-fallback-after-gemini-error",
+      error: error.message,
     };
   }
 }

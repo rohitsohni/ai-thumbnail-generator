@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import express from "express";
 import { GoogleGenAI } from "@google/genai";
 import mongoose from "mongoose";
+import sharp from "sharp";
 
 dotenv.config();
 
@@ -118,61 +119,66 @@ app.get("/api/thumbnails", async (_request, response) => {
 });
 
 app.post("/api/thumbnails", async (request, response) => {
-  const { title, style, aspectRatio, colorSchemeId, additionalDetails = "" } = request.body;
+  try {
+    const { title, style, aspectRatio, colorSchemeId, additionalDetails = "" } = request.body;
 
-  if (!title || !style || !aspectRatio || !colorSchemeId) {
-    response.status(400).json({ message: "title, style, aspectRatio, and colorSchemeId are required" });
-    return;
+    if (!title || !style || !aspectRatio || !colorSchemeId) {
+      response.status(400).json({ message: "title, style, aspectRatio, and colorSchemeId are required" });
+      return;
+    }
+
+    const scheme = colorSchemes[colorSchemeId] || colorSchemes.vibrant;
+    const prompt = [
+      `Create a YouTube thumbnail for: "${title}".`,
+      stylePrompts[style] || stylePrompts["Bold & Graphic"],
+      scheme.description,
+      additionalDetails,
+      `Aspect ratio: ${aspectRatio}. Include readable text overlay.`,
+    ]
+      .filter(Boolean)
+      .join(" ");
+
+    const imageResult = await generateThumbnailImage({
+      title,
+      style,
+      aspectRatio,
+      colors: scheme.colors,
+      details: additionalDetails,
+      colorDescription: scheme.description,
+    });
+
+    const thumbnail = {
+      _id: new mongoose.Types.ObjectId().toString(),
+      userId: "local-user",
+      title,
+      style,
+      aspect_ratio: aspectRatio,
+      color_scheme: colorSchemeId,
+      text_overlay: true,
+      image_url: imageResult.imageUrl,
+      prompt_used: prompt,
+      user_prompt: additionalDetails,
+      provider: imageResult.provider,
+      createdAt: new Date().toISOString(),
+    };
+
+    if (mongoose.connection.readyState === 1) {
+      const saved = await Thumbnail.create(thumbnail);
+      response.status(201).json({ thumbnail: saved.toObject() });
+      return;
+    }
+
+    response.status(201).json({ thumbnail });
+  } catch (error) {
+    console.error("Thumbnail generation route failed:", error);
+    response.status(500).json({ message: "Thumbnail generation failed", error: error.message });
   }
-
-  const scheme = colorSchemes[colorSchemeId] || colorSchemes.vibrant;
-  const prompt = [
-    `Create a YouTube thumbnail for: "${title}".`,
-    stylePrompts[style] || stylePrompts["Bold & Graphic"],
-    scheme.description,
-    additionalDetails,
-    `Aspect ratio: ${aspectRatio}. Include readable text overlay.`,
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  const imageResult = await generateThumbnailImage({
-    title,
-    style,
-    aspectRatio,
-    colors: scheme.colors,
-    details: additionalDetails,
-    colorDescription: scheme.description,
-  });
-
-  const thumbnail = {
-    _id: new mongoose.Types.ObjectId().toString(),
-    userId: "local-user",
-    title,
-    style,
-    aspect_ratio: aspectRatio,
-    color_scheme: colorSchemeId,
-    text_overlay: true,
-    image_url: imageResult.imageUrl,
-    prompt_used: prompt,
-    user_prompt: additionalDetails,
-    provider: imageResult.provider,
-    createdAt: new Date().toISOString(),
-  };
-
-  if (mongoose.connection.readyState === 1) {
-    const saved = await Thumbnail.create(thumbnail);
-    response.status(201).json({ thumbnail: saved.toObject() });
-    return;
-  }
-
-  response.status(201).json({ thumbnail });
 });
 
 async function generateThumbnailImage({ title, style, aspectRatio, colors, details, colorDescription }) {
   if (!geminiApiKey) {
     return {
-      imageUrl: createSvgThumbnail({ title, style, aspectRatio, colors, details }),
+      imageUrl: await createLocalThumbnailPng({ title, style, aspectRatio, colors, details }),
       provider: "local-fallback",
     };
   }
@@ -188,12 +194,6 @@ async function generateThumbnailImage({ title, style, aspectRatio, colors, detai
         details,
         colorDescription,
       }),
-      response_format: {
-        type: "image",
-        mime_type: "image/png",
-        aspect_ratio: aspectRatio,
-        image_size: "1K",
-      },
     });
 
     if (!interaction.output_image?.data) {
@@ -207,10 +207,16 @@ async function generateThumbnailImage({ title, style, aspectRatio, colors, detai
   } catch (error) {
     console.error("Gemini generation failed, using local fallback:", error.message);
     return {
-      imageUrl: createSvgThumbnail({ title, style, aspectRatio, colors, details }),
+      imageUrl: await createLocalThumbnailPng({ title, style, aspectRatio, colors, details }),
       provider: "local-fallback-after-gemini-error",
     };
   }
+}
+
+async function createLocalThumbnailPng({ title, style, aspectRatio, colors, details }) {
+  const svg = createSvgThumbnailSvg({ title, style, aspectRatio, colors, details }).replaceAll("</linearGradient>\n        <filter id=\"shadow\"", "</radialGradient>\n        <filter id=\"shadow\"");
+  const png = await sharp(Buffer.from(svg)).png().toBuffer();
+  return `data:image/png;base64,${png.toString("base64")}`;
 }
 
 function buildGeminiThumbnailPrompt({ title, style, aspectRatio, details, colorDescription }) {
@@ -255,7 +261,7 @@ if (!process.env.VERCEL) {
 
 export default app;
 
-function createSvgThumbnail({ title, style, aspectRatio, colors, details }) {
+function createSvgThumbnailSvg({ title, style, aspectRatio, colors, details }) {
   const dimensions = getDimensions(aspectRatio);
   const [primary, secondary, accent] = colors;
   const safeTitle = escapeXml(title);
@@ -264,8 +270,8 @@ function createSvgThumbnail({ title, style, aspectRatio, colors, details }) {
   const words = splitTitle(safeTitle, aspectRatio);
   const keywordArt = createKeywordArt(category, dimensions, { primary, secondary, accent });
   const headline = words.map((line, index) => {
-    const y = aspectRatio === "9:16" ? 360 + index * 116 : 258 + index * 98;
-    const fontSize = aspectRatio === "9:16" ? 84 : 92;
+    const y = aspectRatio === "9:16" ? 360 + index * 112 : 260 + index * 92;
+    const fontSize = aspectRatio === "9:16" ? 82 : 82;
     return `
       <text x="${dimensions.width * 0.065}" y="${y + 8}" fill="#000" opacity="0.55" font-family="Arial Black, Impact, sans-serif" font-size="${fontSize}" font-weight="900" letter-spacing="0">${line}</text>
       <text x="${dimensions.width * 0.06}" y="${y}" fill="#fff" stroke="#111827" stroke-width="10" paint-order="stroke" font-family="Arial Black, Impact, sans-serif" font-size="${fontSize}" font-weight="900" letter-spacing="0">${line}</text>
@@ -306,15 +312,15 @@ function createSvgThumbnail({ title, style, aspectRatio, colors, details }) {
         <rect x="${dimensions.width * 0.055}" y="${dimensions.height * 0.105}" width="${dimensions.width * 0.44}" height="${dimensions.height * 0.115}" rx="24" fill="#fff"/>
         <text x="${dimensions.width * 0.085}" y="${dimensions.height * 0.178}" fill="#111827" font-family="Arial Black, Arial, sans-serif" font-size="${aspectRatio === "9:16" ? 38 : 40}" font-weight="900">${escapeXml(category.label)}</text>
         ${headline.join("")}
-        <rect x="${dimensions.width * 0.06}" y="${dimensions.height * 0.735}" width="${dimensions.width * 0.5}" height="${dimensions.height * 0.095}" rx="18" fill="#ffffff"/>
-        <text x="${dimensions.width * 0.088}" y="${dimensions.height * 0.795}" fill="#111827" font-family="Arial Black, Arial, sans-serif" font-size="${aspectRatio === "9:16" ? 30 : 34}" font-weight="900">${safeDetails.slice(0, aspectRatio === "9:16" ? 26 : 38)}</text>
+        <rect x="${dimensions.width * 0.06}" y="${dimensions.height * 0.735}" width="${dimensions.width * 0.43}" height="${dimensions.height * 0.095}" rx="18" fill="#ffffff"/>
+        <text x="${dimensions.width * 0.088}" y="${dimensions.height * 0.795}" fill="#111827" font-family="Arial Black, Arial, sans-serif" font-size="${aspectRatio === "9:16" ? 30 : 34}" font-weight="900">${safeDetails.slice(0, aspectRatio === "9:16" ? 22 : 24)}</text>
       </g>
       ${keywordArt}
       <rect x="18" y="18" width="${dimensions.width - 36}" height="${dimensions.height - 36}" rx="28" fill="none" stroke="#fff" stroke-width="10" opacity="0.82"/>
     </svg>
   `;
 
-  return `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
+  return svg;
 }
 
 function detectCategory(input) {
@@ -332,6 +338,9 @@ function detectCategory(input) {
   if (/(game|gaming|battle|fortnite|minecraft|shadow|fight|rank)/.test(value)) {
     return { label: "GAMING", icon: "VS" };
   }
+  if (/(world cup|football|soccer|fifa|stadium|trophy|goal|match|players|cricket|nba|nfl|sports)/.test(value)) {
+    return { label: "SPORTS", icon: "GOAL" };
+  }
   if (/(fitness|gym|workout|muscle|diet|weight|body)/.test(value)) {
     return { label: "FITNESS", icon: "GO" };
   }
@@ -343,9 +352,9 @@ function detectCategory(input) {
 }
 
 function createKeywordArt(category, dimensions, colors) {
-  const x = dimensions.width * 0.66;
+  const x = dimensions.width * 0.7;
   const y = dimensions.height * 0.25;
-  const panelWidth = dimensions.width * 0.27;
+  const panelWidth = dimensions.width * 0.23;
   const panelHeight = dimensions.height * 0.46;
   const icon = escapeXml(category.icon);
 
@@ -403,6 +412,20 @@ function createKeywordArt(category, dimensions, colors) {
     `;
   }
 
+  if (category.label === "SPORTS") {
+    return `
+      ${commonPanel}
+      <g filter="url(#softShadow)">
+        <circle cx="${x + panelWidth * 0.5}" cy="${y + panelHeight * 0.36}" r="84" fill="#ffffff"/>
+        <path d="M ${x + panelWidth * 0.5} ${y + panelHeight * 0.23} L ${x + panelWidth * 0.59} ${y + panelHeight * 0.33} L ${x + panelWidth * 0.55} ${y + panelHeight * 0.48} L ${x + panelWidth * 0.45} ${y + panelHeight * 0.48} L ${x + panelWidth * 0.41} ${y + panelHeight * 0.33} Z" fill="#111827"/>
+        <path d="M ${x + panelWidth * 0.25} ${y + panelHeight * 0.36} C ${x + panelWidth * 0.34} ${y + panelHeight * 0.28}, ${x + panelWidth * 0.43} ${y + panelHeight * 0.24}, ${x + panelWidth * 0.5} ${y + panelHeight * 0.23}" fill="none" stroke="#111827" stroke-width="10" stroke-linecap="round"/>
+        <path d="M ${x + panelWidth * 0.75} ${y + panelHeight * 0.36} C ${x + panelWidth * 0.66} ${y + panelHeight * 0.28}, ${x + panelWidth * 0.57} ${y + panelHeight * 0.24}, ${x + panelWidth * 0.5} ${y + panelHeight * 0.23}" fill="none" stroke="#111827" stroke-width="10" stroke-linecap="round"/>
+        <path d="M ${x + panelWidth * 0.34} ${y + panelHeight * 0.64} L ${x + panelWidth * 0.66} ${y + panelHeight * 0.64} L ${x + panelWidth * 0.6} ${y + panelHeight * 0.82} L ${x + panelWidth * 0.4} ${y + panelHeight * 0.82} Z" fill="${colors.primary}"/>
+        <rect x="${x + panelWidth * 0.25}" y="${y + panelHeight * 0.78}" width="${panelWidth * 0.5}" height="42" rx="18" fill="#111827"/>
+      </g>
+    `;
+  }
+
   return `
     ${commonPanel}
     <g filter="url(#softShadow)">
@@ -423,6 +446,7 @@ function createTagline(title, details) {
   if (/(code|ai|app|react|next|software|tech|laptop|website|programming|developer)/.test(source)) return "BUILD FAST";
   if (/(burger|food|cook|recipe|pizza|meal|restaurant|cake)/.test(source)) return "LOOKS TASTY";
   if (/(game|gaming|battle|fortnite|minecraft|shadow|fight|rank)/.test(source)) return "EPIC MOMENT";
+  if (/(world cup|football|soccer|fifa|stadium|trophy|goal|match|players|cricket|nba|nfl|sports)/.test(source)) return "MATCH DAY";
   if (/(learn|tutorial|course|guide|how to|beginner|master)/.test(source)) return "STEP BY STEP";
 
   return details || "CLICK WORTHY";
@@ -435,7 +459,7 @@ function getDimensions(aspectRatio) {
 }
 
 function splitTitle(title, aspectRatio) {
-  const maxChars = aspectRatio === "9:16" ? 10 : 16;
+  const maxChars = aspectRatio === "9:16" ? 10 : 14;
   const lines = [];
   let current = "";
 

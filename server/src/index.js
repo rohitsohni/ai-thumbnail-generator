@@ -267,6 +267,11 @@ function createSvgThumbnailSvg({ title, style, aspectRatio, colors, details }) {
   const safeTitle = escapeXml(title);
   const safeDetails = escapeXml(createTagline(title, details));
   const category = detectCategory(`${title} ${details}`);
+
+  if (category.label === "SPORTS") {
+    return createSportsThumbnailSvg({ title, aspectRatio, colors, tagline: safeDetails });
+  }
+
   const words = splitTitle(safeTitle, aspectRatio);
   const keywordArt = createKeywordArt(category, dimensions, { primary, secondary, accent });
   const headline = words.map((line, index) => {
@@ -321,6 +326,84 @@ function createSvgThumbnailSvg({ title, style, aspectRatio, colors, details }) {
   `;
 
   return svg;
+}
+
+function createSportsThumbnailSvg({ title, aspectRatio, colors, tagline }) {
+  const dimensions = getDimensions(aspectRatio);
+  const [primary, secondary, accent] = colors;
+  const safeTitle = escapeXml(title);
+  const words = splitTitle(safeTitle, aspectRatio, aspectRatio === "9:16" ? 9 : 10);
+  const titleFontSize = aspectRatio === "9:16" ? 96 : 94;
+  const headline = words.slice(0, 3).map((line, index) => {
+    const y = aspectRatio === "9:16" ? 430 + index * 118 : 225 + index * 112;
+    return `
+      <text x="${dimensions.width * 0.06 + 8}" y="${y + 10}" fill="#000" opacity="0.48" font-family="Arial Black, Impact, sans-serif" font-size="${titleFontSize}" font-weight="900">${line}</text>
+      <text x="${dimensions.width * 0.06}" y="${y}" fill="#fff" stroke="#07111f" stroke-width="12" paint-order="stroke" font-family="Arial Black, Impact, sans-serif" font-size="${titleFontSize}" font-weight="900">${line}</text>
+    `;
+  });
+
+  return `
+    <svg xmlns="http://www.w3.org/2000/svg" width="${dimensions.width}" height="${dimensions.height}" viewBox="0 0 ${dimensions.width} ${dimensions.height}">
+      <defs>
+        <linearGradient id="sportsBg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#07111f"/>
+          <stop offset="42%" stop-color="${primary}"/>
+          <stop offset="100%" stop-color="${secondary}"/>
+        </linearGradient>
+        <radialGradient id="sportsGlow" cx="70%" cy="34%" r="50%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+          <stop offset="40%" stop-color="${accent}" stop-opacity="0.48"/>
+          <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="field" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#0f8a43"/>
+          <stop offset="50%" stop-color="#17b45a"/>
+          <stop offset="100%" stop-color="#086837"/>
+        </linearGradient>
+        <filter id="deepShadow" x="-25%" y="-25%" width="150%" height="150%">
+          <feDropShadow dx="0" dy="18" stdDeviation="12" flood-color="#000" flood-opacity="0.48"/>
+        </filter>
+        <filter id="lightShadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="8" stdDeviation="7" flood-color="#000" flood-opacity="0.32"/>
+        </filter>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#sportsBg)"/>
+      <rect width="100%" height="100%" fill="url(#sportsGlow)"/>
+      <path d="M 0 ${dimensions.height * 0.67} C ${dimensions.width * 0.28} ${dimensions.height * 0.55}, ${dimensions.width * 0.74} ${dimensions.height * 0.56}, ${dimensions.width} ${dimensions.height * 0.67} L ${dimensions.width} ${dimensions.height} L 0 ${dimensions.height} Z" fill="url(#field)"/>
+      <path d="M 0 ${dimensions.height * 0.74} C ${dimensions.width * 0.32} ${dimensions.height * 0.62}, ${dimensions.width * 0.7} ${dimensions.height * 0.62}, ${dimensions.width} ${dimensions.height * 0.74}" fill="none" stroke="#ffffff" stroke-width="7" opacity="0.55"/>
+      <path d="M ${dimensions.width * 0.48} ${dimensions.height} L ${dimensions.width * 0.58} ${dimensions.height * 0.66}" stroke="#ffffff" stroke-width="5" opacity="0.38"/>
+      <path d="M ${dimensions.width * 0.74} ${dimensions.height} L ${dimensions.width * 0.62} ${dimensions.height * 0.66}" stroke="#ffffff" stroke-width="5" opacity="0.38"/>
+      <g opacity="0.5">
+        <path d="M ${dimensions.width * 0.03} ${dimensions.height * 0.1} L ${dimensions.width * 0.33} ${dimensions.height * 0.32}" stroke="#fff" stroke-width="24" stroke-linecap="round"/>
+        <path d="M ${dimensions.width * 0.97} ${dimensions.height * 0.08} L ${dimensions.width * 0.66} ${dimensions.height * 0.31}" stroke="#fff" stroke-width="24" stroke-linecap="round"/>
+        <circle cx="${dimensions.width * 0.1}" cy="${dimensions.height * 0.18}" r="12" fill="#fff"/>
+        <circle cx="${dimensions.width * 0.14}" cy="${dimensions.height * 0.21}" r="12" fill="#fff"/>
+        <circle cx="${dimensions.width * 0.86}" cy="${dimensions.height * 0.17}" r="12" fill="#fff"/>
+        <circle cx="${dimensions.width * 0.9}" cy="${dimensions.height * 0.14}" r="12" fill="#fff"/>
+      </g>
+      <g filter="url(#deepShadow)">
+        <rect x="${dimensions.width * 0.055}" y="${dimensions.height * 0.09}" width="${dimensions.width * 0.28}" height="${dimensions.height * 0.105}" rx="20" fill="#ffffff"/>
+        <text x="${dimensions.width * 0.083}" y="${dimensions.height * 0.158}" fill="#07111f" font-family="Arial Black, Arial, sans-serif" font-size="${aspectRatio === "9:16" ? 36 : 38}" font-weight="900">SPORTS</text>
+        ${headline.join("")}
+        <rect x="${dimensions.width * 0.06}" y="${dimensions.height * 0.73}" width="${dimensions.width * 0.32}" height="${dimensions.height * 0.095}" rx="18" fill="#ffffff"/>
+        <text x="${dimensions.width * 0.088}" y="${dimensions.height * 0.792}" fill="#07111f" font-family="Arial Black, Arial, sans-serif" font-size="${aspectRatio === "9:16" ? 30 : 34}" font-weight="900">${tagline}</text>
+      </g>
+      <g filter="url(#deepShadow)">
+        <circle cx="${dimensions.width * 0.81}" cy="${dimensions.height * 0.32}" r="${dimensions.width * 0.095}" fill="#ffffff"/>
+        <path d="M ${dimensions.width * 0.81} ${dimensions.height * 0.19} L ${dimensions.width * 0.875} ${dimensions.height * 0.295} L ${dimensions.width * 0.85} ${dimensions.height * 0.43} L ${dimensions.width * 0.77} ${dimensions.height * 0.43} L ${dimensions.width * 0.745} ${dimensions.height * 0.295} Z" fill="#07111f"/>
+        <path d="M ${dimensions.width * 0.68} ${dimensions.height * 0.32} C ${dimensions.width * 0.73} ${dimensions.height * 0.23}, ${dimensions.width * 0.78} ${dimensions.height * 0.2}, ${dimensions.width * 0.81} ${dimensions.height * 0.19}" fill="none" stroke="#07111f" stroke-width="12" stroke-linecap="round"/>
+        <path d="M ${dimensions.width * 0.94} ${dimensions.height * 0.32} C ${dimensions.width * 0.89} ${dimensions.height * 0.23}, ${dimensions.width * 0.84} ${dimensions.height * 0.2}, ${dimensions.width * 0.81} ${dimensions.height * 0.19}" fill="none" stroke="#07111f" stroke-width="12" stroke-linecap="round"/>
+      </g>
+      <g filter="url(#lightShadow)">
+        <path d="M ${dimensions.width * 0.72} ${dimensions.height * 0.5} L ${dimensions.width * 0.9} ${dimensions.height * 0.5} L ${dimensions.width * 0.86} ${dimensions.height * 0.72} L ${dimensions.width * 0.76} ${dimensions.height * 0.72} Z" fill="#ffd166"/>
+        <path d="M ${dimensions.width * 0.77} ${dimensions.height * 0.72} L ${dimensions.width * 0.85} ${dimensions.height * 0.72} L ${dimensions.width * 0.87} ${dimensions.height * 0.8} L ${dimensions.width * 0.75} ${dimensions.height * 0.8} Z" fill="#f59e0b"/>
+        <rect x="${dimensions.width * 0.715}" y="${dimensions.height * 0.79}" width="${dimensions.width * 0.19}" height="${dimensions.height * 0.055}" rx="18" fill="#07111f"/>
+        <path d="M ${dimensions.width * 0.71} ${dimensions.height * 0.53} C ${dimensions.width * 0.66} ${dimensions.height * 0.53}, ${dimensions.width * 0.65} ${dimensions.height * 0.62}, ${dimensions.width * 0.72} ${dimensions.height * 0.64}" fill="none" stroke="#ffd166" stroke-width="16" stroke-linecap="round"/>
+        <path d="M ${dimensions.width * 0.91} ${dimensions.height * 0.53} C ${dimensions.width * 0.96} ${dimensions.height * 0.53}, ${dimensions.width * 0.97} ${dimensions.height * 0.62}, ${dimensions.width * 0.9} ${dimensions.height * 0.64}" fill="none" stroke="#ffd166" stroke-width="16" stroke-linecap="round"/>
+      </g>
+      <path d="M 18 18 H ${dimensions.width - 18} V ${dimensions.height - 18} H 18 Z" fill="none" stroke="#fff" stroke-width="10" opacity="0.82"/>
+    </svg>
+  `;
 }
 
 function detectCategory(input) {
@@ -458,8 +541,8 @@ function getDimensions(aspectRatio) {
   return { width: 1280, height: 720 };
 }
 
-function splitTitle(title, aspectRatio) {
-  const maxChars = aspectRatio === "9:16" ? 10 : 14;
+function splitTitle(title, aspectRatio, maxCharsOverride) {
+  const maxChars = maxCharsOverride || (aspectRatio === "9:16" ? 10 : 14);
   const lines = [];
   let current = "";
 

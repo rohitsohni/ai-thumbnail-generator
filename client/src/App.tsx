@@ -1,7 +1,7 @@
 import { ImagePlus, Sparkles, Trash2 } from "lucide-react";
 import type { FormEvent } from "react";
 import { useState } from "react";
-import logoMark from "./assets/thumbnailgo/logo.svg";
+import logoMark from "./assets/brand/icon.svg";
 import { createThumbnail, deleteThumbnail } from "./lib/api";
 import type { Thumbnail } from "./lib/assets";
 import { composeThumbnailWithTitle } from "./lib/overlay";
@@ -183,6 +183,7 @@ export default function App() {
     <div className="siteShell">
       <header className="topbar">
         <button
+          aria-label="Home"
           className="logoLockup"
           onClick={() => {
             setPage(signedInUser ? "generate" : "auth");
@@ -191,7 +192,6 @@ export default function App() {
           type="button"
         >
           <img alt="" className="logoMark" src={logoMark} />
-          ThumbnailGo
         </button>
         <div className="navActions">
           {signedInUser ? (

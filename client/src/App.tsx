@@ -1,4 +1,4 @@
-import { ImagePlus, Sparkles, Trash2 } from "lucide-react";
+import { Sparkles, Trash2 } from "lucide-react";
 import type { FormEvent } from "react";
 import { useState } from "react";
 import { createThumbnail, deleteThumbnail } from "./lib/api";
@@ -334,7 +334,6 @@ export default function App() {
                 </div>
               ) : (
                 <div className="emptyState">
-                  <ImagePlus size={30} />
                   <p>No generations yet.</p>
                   <button onClick={() => setPage("generate")} type="button">
                     Generate one

@@ -1,13 +1,16 @@
 :root {
   --brand-1: #ff0055;
   --brand-2: #ff6a00;
+  --brand-3: #7c3aed;
+  --brand-4: #0ea5e9;
   --brand-gradient: linear-gradient(135deg, var(--brand-1), var(--brand-2));
+  --card-gradient: linear-gradient(160deg, #ffffff, #fff4f5 55%, #fff1e9);
   --ink: #17131a;
   --muted: #6b6470;
   --faint: #948d99;
   --surface: #ffffff;
   --surface-tint: #fff8f5;
-  --border: #efe4e2;
+  --border: #f3d9e2;
   --border-strong: rgba(23, 19, 26, 0.12);
   --shadow-color: 336, 100%, 50%;
   --danger: #d6304a;
@@ -41,16 +44,18 @@ textarea {
 
 .siteShell {
   background:
-    radial-gradient(720px 420px at 12% -8%, rgba(255, 0, 85, 0.14), transparent 60%),
-    radial-gradient(680px 480px at 108% 8%, rgba(255, 106, 0, 0.16), transparent 55%),
-    radial-gradient(900px 620px at 50% 115%, rgba(255, 0, 85, 0.08), transparent 60%),
+    radial-gradient(680px 460px at 8% -6%, rgba(255, 0, 85, 0.26), transparent 60%),
+    radial-gradient(620px 520px at 106% 4%, rgba(255, 106, 0, 0.28), transparent 55%),
+    radial-gradient(760px 560px at 96% 78%, rgba(124, 58, 237, 0.2), transparent 58%),
+    radial-gradient(680px 520px at -4% 82%, rgba(14, 165, 233, 0.18), transparent 55%),
+    radial-gradient(1000px 700px at 50% 118%, rgba(255, 0, 85, 0.12), transparent 60%),
     var(--surface-tint);
   min-height: 100vh;
 }
 
 .topbar {
   align-items: center;
-  background: rgba(255, 255, 255, 0.82);
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.88), rgba(255, 233, 224, 0.82));
   backdrop-filter: blur(14px);
   border: 1px solid var(--border);
   border-radius: 16px;
@@ -146,7 +151,7 @@ textarea {
 }
 
 .navText.active {
-  background: linear-gradient(135deg, rgba(255, 0, 85, 0.12), rgba(255, 106, 0, 0.12));
+  background: linear-gradient(135deg, rgba(255, 0, 85, 0.16), rgba(255, 106, 0, 0.18));
   color: var(--brand-1);
 }
 
@@ -175,8 +180,8 @@ textarea {
 
 .heroSection {
   background-image:
-    linear-gradient(rgba(23, 19, 26, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(23, 19, 26, 0.035) 1px, transparent 1px);
+    linear-gradient(rgba(255, 0, 85, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 106, 0, 0.05) 1px, transparent 1px);
   background-size: 48px 48px;
   min-height: 100vh;
   padding: 172px 24px 80px;
@@ -217,27 +222,42 @@ h1 span {
 }
 
 .promptCard {
-  background: var(--surface);
+  background: var(--card-gradient);
   border: 1px solid var(--border);
   border-radius: 18px;
-  box-shadow: 0 18px 42px hsla(var(--shadow-color) / 0.08);
+  box-shadow: 0 18px 42px hsla(var(--shadow-color) / 0.12);
   display: grid;
   gap: 12px;
   margin: 42px auto 0;
   max-width: 720px;
   min-height: 186px;
+  overflow: hidden;
   padding: 20px;
+  position: relative;
   text-align: left;
 }
 
+.promptCard::before,
+.authCard::before {
+  background: linear-gradient(90deg, var(--brand-1), var(--brand-2), var(--brand-3));
+  content: "";
+  height: 4px;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
 .authCard {
-  background: var(--surface);
+  background: var(--card-gradient);
   border: 1px solid var(--border);
   border-radius: 18px;
-  box-shadow: 0 14px 34px hsla(var(--shadow-color) / 0.07);
+  box-shadow: 0 14px 34px hsla(var(--shadow-color) / 0.1);
   margin: 34px auto 0;
   max-width: 720px;
+  overflow: hidden;
   padding: 18px;
+  position: relative;
   text-align: left;
 }
 
@@ -377,10 +397,10 @@ h1 span {
 
 .resultCard,
 .accountPanel {
-  background: var(--surface);
+  background: var(--card-gradient);
   border: 1px solid var(--border);
   border-radius: 18px;
-  box-shadow: 0 18px 42px hsla(var(--shadow-color) / 0.08);
+  box-shadow: 0 18px 42px hsla(var(--shadow-color) / 0.12);
   margin: 22px auto 0;
   max-width: 720px;
   padding: 14px;
@@ -432,6 +452,7 @@ h1 span {
 }
 
 .generationCard {
+  background: var(--card-gradient);
   border: 1px solid var(--border);
   border-radius: 14px;
   display: grid;
@@ -441,8 +462,8 @@ h1 span {
 }
 
 .generationCard:hover {
-  border-color: #ffd2c2;
-  box-shadow: 0 14px 30px hsla(var(--shadow-color) / 0.14);
+  border-color: #ffb49b;
+  box-shadow: 0 14px 30px hsla(var(--shadow-color) / 0.2);
   transform: translateY(-2px);
 }
 
@@ -496,7 +517,10 @@ h1 span {
 }
 
 .emptyState svg {
+  background: linear-gradient(135deg, rgba(255, 0, 85, 0.14), rgba(124, 58, 237, 0.14));
+  border-radius: 999px;
   color: var(--brand-1);
+  padding: 14px;
 }
 
 .emptyState button {

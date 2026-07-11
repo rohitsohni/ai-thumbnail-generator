@@ -292,7 +292,7 @@ export default function App() {
                 aria-label="Thumbnail prompt"
                 value={prompt}
                 onChange={(event) => setPrompt(event.target.value)}
-                placeholder="Describe your thumbnail... epic gaming battle"
+                placeholder="Describe your thumbnail..."
               />
               <div className="promptActions">
                 <button className="generateFree" disabled={!prompt.trim() || isGenerating} onClick={generate} type="button">

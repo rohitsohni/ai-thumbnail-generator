@@ -197,7 +197,8 @@ async function generateThumbnailImage({ title, style, aspectRatio, colors, detai
     const url = new URL(`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`);
     url.searchParams.set("width", String(dimensions.width));
     url.searchParams.set("height", String(dimensions.height));
-    url.searchParams.set("model", "flux");
+    // turbo is far less prone to inventing poster-style typography than flux.
+    url.searchParams.set("model", "turbo");
     // enhance runs the prompt through an LLM rewrite step that tends to invent poster-style
     // titles/captions of its own, which is how garbled baked-in text ends up in the image.
     url.searchParams.set("enhance", "false");

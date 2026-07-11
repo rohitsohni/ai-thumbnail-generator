@@ -100,7 +100,6 @@ export default function App() {
       setGenerations(updatedGenerations);
       setLatestGeneration(thumbnail);
       saveStoredGenerations(signedInUser.name, updatedGenerations);
-      setStatusMessage("Generated and saved to your account.");
     } catch {
       setStatusMessage("Could not generate. Make sure the backend server is running.");
     } finally {

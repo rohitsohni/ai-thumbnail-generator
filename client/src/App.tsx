@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import { useState } from "react";
 import { createThumbnail, deleteThumbnail } from "./lib/api";
 import type { Thumbnail } from "./lib/assets";
+import { composeThumbnailWithTitle } from "./lib/overlay";
 
 type AuthMode = "register" | "signin";
 type Page = "auth" | "generate" | "account";
@@ -83,8 +84,18 @@ export default function App() {
         style: "Bold & Graphic",
         aspectRatio: "16:9",
         colorSchemeId: "vibrant",
-        additionalDetails: "clean readable text, high contrast, YouTube thumbnail composition",
+        additionalDetails: "no text, no words, no letters, no captions in the image, clean background art only",
       });
+
+      const needsOverlay = !thumbnail.provider?.startsWith("local-fallback");
+      if (needsOverlay) {
+        try {
+          thumbnail.image_url = await composeThumbnailWithTitle(thumbnail.image_url, thumbnail.title);
+        } catch {
+          // If compositing fails for any reason, fall back to the raw generated image.
+        }
+      }
+
       const updatedGenerations = [thumbnail, ...generations];
       setGenerations(updatedGenerations);
       setLatestGeneration(thumbnail);

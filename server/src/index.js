@@ -1,7 +1,6 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import { GoogleGenAI } from "@google/genai";
 import mongoose from "mongoose";
 import sharp from "sharp";
 
@@ -9,9 +8,6 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 5001;
-const configuredGeminiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
-const geminiApiKey = configuredGeminiKey.includes("paste_your") ? "" : configuredGeminiKey;
-const geminiModel = process.env.GEMINI_IMAGE_MODEL || "gemini-3.1-flash-image";
 
 const stylePrompts = {
   "Bold & Graphic":
@@ -109,13 +105,6 @@ app.get("/api/health", (_request, response) => {
   response.json({ ok: true, app: "Thumblify" });
 });
 
-app.get("/api/gemini/status", (_request, response) => {
-  response.json({
-    configured: Boolean(geminiApiKey),
-    model: geminiModel,
-  });
-});
-
 app.get("/api/thumbnails", async (_request, response) => {
   if (mongoose.connection.readyState !== 1) {
     response.json({ thumbnails: [] });
@@ -202,52 +191,6 @@ app.delete("/api/thumbnails/:id", async (request, response) => {
 });
 
 async function generateThumbnailImage({ title, style, aspectRatio, colors, details, colorDescription }) {
-  if (!geminiApiKey) {
-    return generatePollinationsThumbnail({ title, style, aspectRatio, details, colorDescription, colors });
-  }
-
-  try {
-    const ai = new GoogleGenAI({ apiKey: geminiApiKey });
-    const interaction = await ai.interactions.create({
-      model: geminiModel,
-      input: buildGeminiThumbnailPrompt({
-        title,
-        style,
-        aspectRatio,
-        details,
-        colorDescription,
-      }),
-      response_format: {
-        type: "image",
-        mime_type: "image/jpeg",
-        aspect_ratio: aspectRatio,
-        image_size: "1K",
-      },
-    });
-
-    if (!interaction.output_image?.data) {
-      throw new Error("Gemini did not return an image");
-    }
-
-    return {
-      imageUrl: `data:${interaction.output_image.mime_type || "image/png"};base64,${interaction.output_image.data}`,
-      provider: geminiModel,
-    };
-  } catch (error) {
-    console.error("Gemini generation failed, trying Pollinations:", error.message);
-    return generatePollinationsThumbnail({
-      title,
-      style,
-      aspectRatio,
-      details,
-      colorDescription,
-      colors,
-      previousError: error.message,
-    });
-  }
-}
-
-async function generatePollinationsThumbnail({ title, style, aspectRatio, details, colorDescription, colors, previousError }) {
   try {
     const dimensions = getDimensions(aspectRatio);
     const prompt = buildPollinationsThumbnailPrompt({ title, style, details, colorDescription });
@@ -255,7 +198,11 @@ async function generatePollinationsThumbnail({ title, style, aspectRatio, detail
     url.searchParams.set("width", String(dimensions.width));
     url.searchParams.set("height", String(dimensions.height));
     url.searchParams.set("model", "flux");
-    url.searchParams.set("enhance", "true");
+    // enhance runs the prompt through an LLM rewrite step that tends to invent poster-style
+    // titles/captions of its own, which is how garbled baked-in text ends up in the image.
+    url.searchParams.set("enhance", "false");
+    url.searchParams.set("nologo", "true");
+    url.searchParams.set("negative_prompt", "text, words, letters, typography, captions, watermark, logo, signage, title card, poster text, gibberish text");
     url.searchParams.set("private", "true");
     url.searchParams.set("seed", String(createStableSeed(`${title} ${style} ${details}`)));
     url.searchParams.set("referrer", "thumbnailgo");
@@ -281,15 +228,14 @@ async function generatePollinationsThumbnail({ title, style, aspectRatio, detail
 
     return {
       imageUrl: `data:${contentType};base64,${imageBuffer.toString("base64")}`,
-      provider: previousError ? "pollinations-after-gemini-error" : "pollinations",
-      error: previousError,
+      provider: "pollinations",
     };
   } catch (error) {
     console.error("Pollinations generation failed, using local fallback:", error.message);
     return {
       imageUrl: await createLocalThumbnailPng({ title, style, aspectRatio, colors, details }),
-      provider: previousError ? "local-fallback-after-gemini-and-pollinations-error" : "local-fallback-after-pollinations-error",
-      error: [previousError, error.message].filter(Boolean).join(" / "),
+      provider: "local-fallback-after-pollinations-error",
+      error: error.message,
     };
   }
 }
@@ -300,34 +246,16 @@ async function createLocalThumbnailPng({ title, style, aspectRatio, colors, deta
   return `data:image/png;base64,${png.toString("base64")}`;
 }
 
-function buildGeminiThumbnailPrompt({ title, style, aspectRatio, details, colorDescription }) {
-  return `
-Create a high-converting YouTube thumbnail.
-
-Video title text to include exactly and clearly: "${title}"
-Aspect ratio: ${aspectRatio}
-Visual style: ${style}
-Color direction: ${colorDescription}
-Extra user details: ${details || "Use a strong creator-focused thumbnail composition."}
-
-Requirements:
-- Make it look like a professional YouTube thumbnail, not a poster.
-- Use bold readable text, dramatic lighting, high contrast, and a clear focal subject.
-- Leave safe margins around all text.
-- Include only short supporting text if needed.
-- Do not add watermarks, fake UI controls, browser chrome, or unreadable tiny text.
-- Make the image visually exciting and clickable.
-`.trim();
-}
-
 function buildPollinationsThumbnailPrompt({ title, style, details, colorDescription }) {
   return [
-    `Professional YouTube thumbnail for "${title}"`,
+    "textless background photo, absolutely no typography anywhere in frame",
+    `scene evoking the theme: ${title}, depicted visually only, never spelled out as text`,
     "cinematic composition, high contrast, vibrant lighting, sharp focus, dramatic subject, viral creator thumbnail style",
     `visual style: ${style}`,
     `color palette: ${colorDescription}`,
     details ? `extra details: ${details}` : "",
-    "large readable title text, clean layout, no watermark, no browser UI, no random tiny text",
+    "clean lower third for a text caption overlay",
+    "no text, no words, no letters, no numbers, no captions, no titles, no tickets, no banners, no signage, no logos, no watermark, no browser UI",
   ]
     .filter(Boolean)
     .join(", ");

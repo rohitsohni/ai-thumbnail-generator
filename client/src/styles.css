@@ -168,6 +168,10 @@ textarea {
   text-align: center;
 }
 
+.authPage {
+  padding-top: 90px;
+}
+
 .heroText {
   margin: 0 auto;
   max-width: 780px;
@@ -314,6 +318,13 @@ h1 span {
   font-size: 0.92rem;
   font-weight: 700;
   margin-top: 12px;
+}
+
+.fieldHint {
+  color: var(--faint);
+  font-size: 0.82rem;
+  font-weight: 650;
+  margin: -4px 2px 0;
 }
 
 .signedInState {

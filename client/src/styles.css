@@ -497,10 +497,7 @@ h1 span {
 }
 
 .emptyState svg {
-  background: linear-gradient(135deg, rgba(255, 0, 85, 0.14), rgba(124, 58, 237, 0.14));
-  border-radius: 999px;
   color: var(--brand-1);
-  padding: 14px;
 }
 
 .emptyState button {

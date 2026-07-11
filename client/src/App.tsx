@@ -1,6 +1,7 @@
 import { ImagePlus, Sparkles, Trash2, Upload } from "lucide-react";
 import type { FormEvent } from "react";
 import { useState } from "react";
+import logoMark from "./assets/thumbnailgo/logo.svg";
 import { createThumbnail, deleteThumbnail } from "./lib/api";
 import type { Thumbnail } from "./lib/assets";
 import { composeThumbnailWithTitle } from "./lib/overlay";
@@ -189,6 +190,7 @@ export default function App() {
           }}
           type="button"
         >
+          <img alt="" className="logoMark" src={logoMark} />
           ThumbnailGo
         </button>
         <div className="navActions">
@@ -232,7 +234,7 @@ export default function App() {
         {!signedInUser || page === "auth" ? (
           <section className="heroSection authPage" id="auth">
             <div className="heroText">
-              <h1>Create thumbnails.</h1>
+              <h1><span>Create</span> thumbnails.</h1>
               <p>Register or sign in first. After that, the Generate page opens.</p>
             </div>
 
@@ -281,7 +283,7 @@ export default function App() {
         {signedInUser && page === "generate" ? (
           <section className="heroSection generatePage" id="generate">
             <div className="heroText">
-              <h1>Generate thumbnail.</h1>
+              <h1><span>Generate</span> thumbnail.</h1>
               <p>Signed in as {signedInUser.name}. Type your thumbnail idea below.</p>
             </div>
 
@@ -320,7 +322,7 @@ export default function App() {
         {signedInUser && page === "account" ? (
           <section className="heroSection accountPage">
             <div className="heroText">
-              <h1>My Account.</h1>
+              <h1>My <span>Account</span>.</h1>
               <p>{generations.length ? `${generations.length} saved generation${generations.length === 1 ? "" : "s"}.` : "Your generated images will appear here."}</p>
             </div>
 

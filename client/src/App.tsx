@@ -13,6 +13,9 @@ interface SavedUser {
   password: string;
 }
 
+const minPasswordLength = 4;
+const maxPasswordLength = 20;
+
 const usersKey = "thumbnailgo_users";
 const oldUserKey = "thumbnailgo_user";
 const sessionKey = "thumbnailgo_session";
@@ -120,6 +123,11 @@ export default function App() {
     const users = getUsers();
 
     if (authMode === "register") {
+      if (password.length < minPasswordLength || password.length > maxPasswordLength) {
+        setAuthMessage(`Password must be ${minPasswordLength}-${maxPasswordLength} characters.`);
+        return;
+      }
+
       const alreadyExists = users.some((user) => user.name.toLowerCase() === cleanName.toLowerCase());
       if (alreadyExists) {
         setAuthMessage("That name is already registered. Sign in instead.");
@@ -180,43 +188,35 @@ export default function App() {
 
   return (
     <div className="siteShell">
-      <header className="topbar">
-        <div className="navActions">
-          {signedInUser ? (
-            <>
-              <button
-                className={page === "generate" ? "navText active" : "navText"}
-                onClick={() => {
-                  setPage("generate");
-                  window.location.hash = "generate";
-                }}
-                type="button"
-              >
-                Generate
-              </button>
-              <button
-                className={page === "account" ? "navText active" : "navText"}
-                onClick={() => {
-                  setPage("account");
-                  window.location.hash = "account";
-                }}
-                type="button"
-              >
-                My Account
-              </button>
-            </>
-          ) : null}
-          {signedInUser ? (
+      {signedInUser ? (
+        <header className="topbar">
+          <div className="navActions">
+            <button
+              className={page === "generate" ? "navText active" : "navText"}
+              onClick={() => {
+                setPage("generate");
+                window.location.hash = "generate";
+              }}
+              type="button"
+            >
+              Generate
+            </button>
+            <button
+              className={page === "account" ? "navText active" : "navText"}
+              onClick={() => {
+                setPage("account");
+                window.location.hash = "account";
+              }}
+              type="button"
+            >
+              My Account
+            </button>
             <button className="signin" onClick={signOut} type="button">
               Sign Out
             </button>
-          ) : (
-            <button className="signin" onClick={() => setPage("auth")} type="button">
-              Sign In
-            </button>
-          )}
-        </div>
-      </header>
+          </div>
+        </header>
+      ) : null}
 
       <main id="top">
         {!signedInUser || page === "auth" ? (
@@ -259,6 +259,11 @@ export default function App() {
                   type="password"
                   value={password}
                 />
+                {authMode === "register" ? (
+                  <p className="fieldHint">
+                    Password must be {minPasswordLength}-{maxPasswordLength} characters.
+                  </p>
+                ) : null}
                 <button className="authSubmit" type="submit">
                   {authMode === "register" ? "Register" : "Sign In"}
                 </button>

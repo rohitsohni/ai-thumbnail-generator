@@ -1,4 +1,4 @@
-import { ImagePlus, Sparkles, Trash2, Upload } from "lucide-react";
+import { ImagePlus, Sparkles, Trash2 } from "lucide-react";
 import type { FormEvent } from "react";
 import { useState } from "react";
 import logoMark from "./assets/thumbnailgo/logo.svg";
@@ -295,9 +295,6 @@ export default function App() {
                 placeholder="Describe your thumbnail... epic gaming battle"
               />
               <div className="promptActions">
-                <button className="uploadButton" type="button" aria-label="Upload reference">
-                  <Upload size={18} />
-                </button>
                 <button className="generateFree" disabled={!prompt.trim() || isGenerating} onClick={generate} type="button">
                   {isGenerating ? "Generating..." : "Generate Image"}
                   <Sparkles size={17} />

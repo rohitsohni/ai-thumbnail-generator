@@ -167,14 +167,10 @@ export default function App() {
   async function removeGeneration(generation: Thumbnail) {
     if (!signedInUser) return;
 
-    const shouldDelete = window.confirm(`Delete "${generation.title}" from your generations?`);
-    if (!shouldDelete) return;
-
     const updatedGenerations = generations.filter((item) => item._id !== generation._id);
     setGenerations(updatedGenerations);
     setLatestGeneration((current) => (current?._id === generation._id ? updatedGenerations[0] ?? null : current));
     saveStoredGenerations(signedInUser.name, updatedGenerations);
-    setStatusMessage("Generation deleted.");
 
     try {
       await deleteThumbnail(generation._id);
@@ -315,10 +311,7 @@ export default function App() {
                 <img src={latestGeneration.image_url} alt={latestGeneration.title} />
                 <div>
                   <strong>{latestGeneration.title}</strong>
-                  <span>
-                    Saved in My Account
-                    {latestGeneration.provider ? ` / ${latestGeneration.provider}` : ""}
-                  </span>
+                  <span>Saved in My Account</span>
                 </div>
               </article>
             ) : null}

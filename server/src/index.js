@@ -102,7 +102,7 @@ app.use(
 app.use(express.json({ limit: "2mb" }));
 
 app.get("/api/health", (_request, response) => {
-  response.json({ ok: true, app: "Thumblify" });
+  response.json({ ok: true, app: "AI Thumbnail Generator" });
 });
 
 app.get("/api/thumbnails", async (_request, response) => {
@@ -280,7 +280,7 @@ async function start() {
   }
 
   app.listen(port, () => {
-    console.log(`Thumblify server running on http://localhost:${port}`);
+    console.log(`Server running on http://localhost:${port}`);
   });
 }
 

@@ -1,8 +1,9 @@
 {
-  "name": "thumblify",
+  "name": "ai-thumbnail-generator",
   "private": true,
   "version": "1.0.0",
-  "description": "AI thumbnail generator app inspired by the GreatStack Thumblify project.",
+  "description": "MERN AI thumbnail generator with React, Express, MongoDB support, local auth, saved generations, and free Pollinations AI image generation.",
+  "license": "MIT",
   "scripts": {
     "dev": "concurrently \"npm run dev --workspace server\" \"npm run dev --workspace client\"",
     "build": "npm run build --workspace client",

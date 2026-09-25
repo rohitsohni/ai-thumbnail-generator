@@ -8,7 +8,7 @@ A full-stack application for generating YouTube-style thumbnails from text promp
 
 ## Preview
 
-![Example generated thumbnail](docs/example-output.jpg)
+<img width="1280" height="720" alt="AI Thumbnail Generator registration screen" src="https://github.com/user-attachments/assets/c387c977-4338-4e61-aa45-9a79c5aaaff6" />
 
 ## Project Highlights
 

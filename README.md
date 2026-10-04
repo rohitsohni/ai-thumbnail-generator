@@ -35,7 +35,7 @@ server -> Express image-generation API
 
 - Node.js and Express - API server
 - Pollinations AI - generates thumbnail background images
-- Sharp - converts the local SVG fallback into PNG
+- SVG data URLs - provide a dependency-free local fallback image
 - MongoDB and Mongoose - optional thumbnail persistence
 - CORS and dotenv - deployment configuration
 
@@ -153,7 +153,7 @@ The overlay helper wraps the title into up to three lines, adjusts font size, ad
 
 ## Fallback image handling
 
-If Pollinations AI times out or returns an invalid response, the server creates an SVG thumbnail locally and converts it to PNG with Sharp.
+If Pollinations AI times out or returns an invalid response, the server creates an SVG thumbnail locally and returns it directly as a data URL.
 
 The fallback keeps the generator functional and records the provider error for troubleshooting.
 

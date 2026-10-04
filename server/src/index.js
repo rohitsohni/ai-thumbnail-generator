@@ -2,7 +2,6 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
-import sharp from "sharp";
 
 dotenv.config();
 
@@ -234,17 +233,16 @@ async function generateThumbnailImage({ title, style, aspectRatio, colors, detai
   } catch (error) {
     console.error("Pollinations generation failed, using local fallback:", error.message);
     return {
-      imageUrl: await createLocalThumbnailPng({ title, style, aspectRatio, colors, details }),
+      imageUrl: createLocalThumbnailSvg({ title, style, aspectRatio, colors, details }),
       provider: "local-fallback-after-pollinations-error",
       error: error.message,
     };
   }
 }
 
-async function createLocalThumbnailPng({ title, style, aspectRatio, colors, details }) {
+function createLocalThumbnailSvg({ title, style, aspectRatio, colors, details }) {
   const svg = createSvgThumbnailSvg({ title, style, aspectRatio, colors, details }).replaceAll("</linearGradient>\n        <filter id=\"shadow\"", "</radialGradient>\n        <filter id=\"shadow\"");
-  const png = await sharp(Buffer.from(svg)).png().toBuffer();
-  return `data:image/png;base64,${png.toString("base64")}`;
+  return `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
 }
 
 function buildPollinationsThumbnailPrompt({ title, style, details, colorDescription }) {

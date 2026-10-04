@@ -12,7 +12,7 @@ const stylePrompts = {
   "Bold & Graphic":
     "eye-catching thumbnail, bold typography, vibrant colors, expressive facial reaction, dramatic lighting, high contrast, click-worthy composition, professional style",
   "Tech/Futuristic":
-    "futuristic thumbnail, sleek modern design, digital UI elements, glowing accents, holographic effects, cyber-tech aesthetic, sharp lighting, high-tech atmosphere",
+    "futuristic thumbnail, sleek modern design, digital UI elements, glowing accents, holographic effects, cyber-tech aesthetic, dramatic lighting, high-tech atmosphere",
   Minimalist:
     "minimalist thumbnail, clean layout, simple shapes, limited color palette, plenty of negative space, modern flat design, clear focal point",
   Photorealistic:
@@ -249,7 +249,7 @@ function buildPollinationsThumbnailPrompt({ title, style, details, colorDescript
   return [
     "textless background photo, absolutely no typography anywhere in frame",
     `scene evoking the theme: ${title}, depicted visually only, never spelled out as text`,
-    "cinematic composition, high contrast, vibrant lighting, sharp focus, dramatic subject, viral creator thumbnail style",
+    "cinematic composition, high contrast, vibrant lighting, crisp focus, dramatic subject, viral creator thumbnail style",
     `visual style: ${style}`,
     `color palette: ${colorDescription}`,
     details ? `extra details: ${details}` : "",

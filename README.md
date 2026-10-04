@@ -27,7 +27,7 @@ server -> Express image-generation API
 - TypeScript - adds type safety
 - Vite - runs and builds the frontend
 - Axios - sends requests to the backend
-- Canvas API - adds sharp text overlays to images
+- Canvas API - adds crisp text overlays to images
 - Lucide React - interface icons
 - LocalStorage - stores local users, sessions, and saved generations
 

@@ -90,13 +90,10 @@ export default function App() {
         additionalDetails: "no text, no words, no letters, no captions in the image, clean background art only",
       });
 
-      const needsOverlay = !thumbnail.provider?.startsWith("local-fallback");
-      if (needsOverlay) {
-        try {
-          thumbnail.image_url = await composeThumbnailWithTitle(thumbnail.image_url, thumbnail.title);
-        } catch {
-          // If compositing fails for any reason, fall back to the raw generated image.
-        }
+      try {
+        thumbnail.image_url = await composeThumbnailWithTitle(thumbnail.image_url, thumbnail.title);
+      } catch {
+        // Keep the raw generated image if title compositing fails.
       }
 
       const updatedGenerations = [thumbnail, ...generations];

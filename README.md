@@ -35,7 +35,6 @@ server -> Express image-generation API
 
 - Node.js and Express - API server
 - Pollinations AI - generates thumbnail background images
-- SVG data URLs - provide a dependency-free local fallback image
 - MongoDB and Mongoose - optional thumbnail persistence
 - CORS and dotenv - deployment configuration
 
@@ -76,7 +75,7 @@ My Account -> review and delete saved generations
 ## Backend structure
 
 ```text
-index.js -> Express server, generation routes, MongoDB model, AI request, and fallback renderer
+index.js -> Express server, generation routes, MongoDB model, and AI request
 POST /api/thumbnails -> validates input and generates a thumbnail
 DELETE /api/thumbnails/:id -> removes a stored thumbnail
 GET /api/health -> reports server health
@@ -95,7 +94,6 @@ image URL
 prompt used
 user details
 provider
-generation error when a fallback was needed
 creation time
 ```
 
@@ -150,12 +148,6 @@ The backend:
 Free image models do not always create readable words. The app therefore asks the AI for a text-free background and draws the title separately with the browser Canvas API.
 
 The overlay helper wraps the title into up to three lines, adjusts font size, adds a dark lower gradient, and draws white text with a black outline for contrast.
-
-## Fallback image handling
-
-If Pollinations AI times out or returns an invalid response, the server creates an SVG thumbnail locally and returns it directly as a data URL.
-
-The fallback keeps the generator functional and records the provider error for troubleshooting.
 
 ## Shared and saved state
 

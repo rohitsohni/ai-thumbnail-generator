@@ -164,6 +164,9 @@ separate generation history for each user
 
 ## Deployment
 
-Vercel sends requests beginning with `/api` to the Express backend, allowing the frontend and backend to work from the same deployed website.
+The frontend and backend are deployed together on Vercel.
 
-During local development, the optional `PORT` environment variable controls which port the Express server uses. If `PORT` is not set, the server runs on port `5001`.
+Environment variables contain:
+
+- Client URL
+- Local server port

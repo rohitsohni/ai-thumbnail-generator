@@ -163,7 +163,3 @@ separate generation history for each user
 
 The frontend and backend are deployed together on Vercel.
 
-Environment variables contain:
-
-- Client URL
-- Local server port

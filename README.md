@@ -76,7 +76,6 @@ My Account -> review and delete saved generations
 ```text
 index.js -> Express server, generation routes, and AI request
 POST /api/thumbnails -> validates input and generates a thumbnail
-DELETE /api/thumbnails/:id -> removes a stored thumbnail
 ```
 
 ## Thumbnail data

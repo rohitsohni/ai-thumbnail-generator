@@ -10,7 +10,3 @@ export async function createThumbnail(payload: ThumbnailRequest) {
   const { data } = await api.post<{ thumbnail: Thumbnail }>("/thumbnails", payload);
   return data.thumbnail;
 }
-
-export async function deleteThumbnail(id: string) {
-  await api.delete(`/thumbnails/${id}`);
-}

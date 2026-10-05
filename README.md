@@ -35,7 +35,6 @@ server -> Express image-generation API
 
 - Node.js and Express - API server
 - Pollinations AI - generates thumbnail background images
-- MongoDB and Mongoose - optional thumbnail persistence
 - CORS and dotenv - deployment configuration
 
 ## User features
@@ -75,7 +74,7 @@ My Account -> review and delete saved generations
 ## Backend structure
 
 ```text
-index.js -> Express server, generation routes, MongoDB model, and AI request
+index.js -> Express server, generation routes, and AI request
 POST /api/thumbnails -> validates input and generates a thumbnail
 DELETE /api/thumbnails/:id -> removes a stored thumbnail
 GET /api/health -> reports server health
@@ -97,7 +96,7 @@ provider
 creation time
 ```
 
-When MongoDB is connected, the backend stores the generation. Without MongoDB, it still returns a temporary result so the app remains usable.
+Generated thumbnails are saved in the signed-in user's browser using LocalStorage.
 
 ## Main project flow
 
@@ -135,7 +134,6 @@ The backend:
 - Uses fixed dimensions for each aspect ratio
 - Adds a stable seed so similar prompts are more repeatable
 - Returns the image as a data URL
-- Stores the result in MongoDB when the database is available
 
 ## Title overlay
 
@@ -171,7 +169,4 @@ The project uses Vercel rewrites so browser requests to `/api` are sent to the E
 
 Environment variables can contain:
 
-- MongoDB connection
 - Port for local development
-
-The application can still generate and display images when MongoDB is not configured; database persistence is optional.

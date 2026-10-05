@@ -1,7 +1,7 @@
+import { randomUUID } from "node:crypto";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import mongoose from "mongoose";
 
 dotenv.config();
 
@@ -64,26 +64,6 @@ const colorSchemes = {
   },
 };
 
-const thumbnailSchema = new mongoose.Schema(
-  {
-    userId: { type: String, default: "local-user" },
-    title: { type: String, required: true },
-    description: String,
-    style: { type: String, required: true },
-    aspect_ratio: { type: String, required: true },
-    color_scheme: { type: String, required: true },
-    text_overlay: { type: Boolean, default: true },
-    image_url: { type: String, required: true },
-    prompt_used: String,
-    user_prompt: String,
-    provider: String,
-  },
-  { timestamps: true },
-);
-
-const Thumbnail =
-  mongoose.models.Thumbnail || mongoose.model("Thumbnail", thumbnailSchema);
-
 app.use(
   cors({
     origin(origin, callback) {
@@ -101,16 +81,6 @@ app.use(express.json({ limit: "2mb" }));
 
 app.get("/api/health", (_request, response) => {
   response.json({ ok: true, app: "AI Thumbnail Generator" });
-});
-
-app.get("/api/thumbnails", async (_request, response) => {
-  if (mongoose.connection.readyState !== 1) {
-    response.json({ thumbnails: [] });
-    return;
-  }
-
-  const thumbnails = await Thumbnail.find().sort({ createdAt: -1 }).lean();
-  response.json({ thumbnails });
 });
 
 app.post("/api/thumbnails", async (request, response) => {
@@ -142,7 +112,7 @@ app.post("/api/thumbnails", async (request, response) => {
     });
 
     const thumbnail = {
-      _id: new mongoose.Types.ObjectId().toString(),
+      _id: randomUUID(),
       userId: "local-user",
       title,
       style,
@@ -156,34 +126,11 @@ app.post("/api/thumbnails", async (request, response) => {
       createdAt: new Date().toISOString(),
     };
 
-    if (mongoose.connection.readyState === 1) {
-      const saved = await Thumbnail.create(thumbnail);
-      response.status(201).json({ thumbnail: saved.toObject() });
-      return;
-    }
-
     response.status(201).json({ thumbnail });
   } catch (error) {
     console.error("Thumbnail generation route failed:", error);
     response.status(500).json({ message: "Thumbnail generation failed", error: error.message });
   }
-});
-
-app.delete("/api/thumbnails/:id", async (request, response) => {
-  const { id } = request.params;
-
-  if (!id) {
-    response.status(400).json({ message: "Thumbnail id is required" });
-    return;
-  }
-
-  if (mongoose.connection.readyState !== 1) {
-    response.status(204).send();
-    return;
-  }
-
-  await Thumbnail.findByIdAndDelete(id);
-  response.status(204).send();
 });
 
 async function generateThumbnailImage({ title, style, aspectRatio, details, colorDescription }) {
@@ -257,24 +204,14 @@ function createStableSeed(value) {
   return Math.abs(hash) % 1000000;
 }
 
-async function start() {
-  if (process.env.MONGODB_URI) {
-    await mongoose.connect(process.env.MONGODB_URI);
-    console.log("MongoDB connected");
-  } else {
-    console.log("MONGODB_URI not set; using in-memory local responses");
-  }
-
+function start() {
   app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
   });
 }
 
 if (!process.env.VERCEL) {
-  start().catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+  start();
 }
 
 export default app;
@@ -283,32 +220,4 @@ function getDimensions(aspectRatio) {
   if (aspectRatio === "1:1") return { width: 1080, height: 1080 };
   if (aspectRatio === "9:16") return { width: 1080, height: 1920 };
   return { width: 1280, height: 720 };
-}
-
-function splitTitle(title, aspectRatio, maxCharsOverride) {
-  const maxChars = maxCharsOverride || (aspectRatio === "9:16" ? 10 : 14);
-  const lines = [];
-  let current = "";
-
-  for (const word of title.split(" ")) {
-    if (`${current} ${word}`.trim().length > maxChars && current) {
-      lines.push(current);
-      current = word;
-    } else {
-      current = `${current} ${word}`.trim();
-    }
-    if (lines.length === 3) break;
-  }
-
-  if (current && lines.length < 3) lines.push(current);
-  return lines.length ? lines : [title.slice(0, maxChars)];
-}
-
-function escapeXml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&apos;");
 }

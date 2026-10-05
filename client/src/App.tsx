@@ -1,7 +1,7 @@
 import { Sparkles, Trash2 } from "lucide-react";
 import type { FormEvent } from "react";
 import { useState } from "react";
-import { createThumbnail, deleteThumbnail } from "./lib/api";
+import { createThumbnail } from "./lib/api";
 import type { Thumbnail } from "./lib/assets";
 import { composeThumbnailWithTitle } from "./lib/overlay";
 
@@ -168,19 +168,13 @@ export default function App() {
     window.location.hash = "auth";
   }
 
-  async function removeGeneration(generation: Thumbnail) {
+  function removeGeneration(generation: Thumbnail) {
     if (!signedInUser) return;
 
     const updatedGenerations = generations.filter((item) => item._id !== generation._id);
     setGenerations(updatedGenerations);
     setLatestGeneration((current) => (current?._id === generation._id ? updatedGenerations[0] ?? null : current));
     saveStoredGenerations(signedInUser.name, updatedGenerations);
-
-    try {
-      await deleteThumbnail(generation._id);
-    } catch {
-      // Local browser generations still delete even when the optional backend store is unavailable.
-    }
   }
 
   return (

@@ -71,12 +71,11 @@ Generate -> enter an idea and create a thumbnail
 My Account -> review and delete saved generations
 ```
 
-## Backend structure
+## Backend
 
-```text
-index.js -> Express server, generation routes, and AI request
-POST /api/thumbnails -> validates input and generates a thumbnail
-```
+The backend is in `server/src/index.js`.
+
+It receives the thumbnail details from the website, sends them to Pollinations AI, and returns the generated image.
 
 ## Thumbnail data
 

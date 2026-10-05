@@ -79,10 +79,6 @@ app.use(
 );
 app.use(express.json({ limit: "2mb" }));
 
-app.get("/api/health", (_request, response) => {
-  response.json({ ok: true, app: "AI Thumbnail Generator" });
-});
-
 app.post("/api/thumbnails", async (request, response) => {
   try {
     const { title, style, aspectRatio, colorSchemeId, additionalDetails = "" } = request.body;

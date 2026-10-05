@@ -2,7 +2,7 @@
   "name": "ai-thumbnail-generator",
   "private": true,
   "version": "1.0.0",
-  "description": "MERN AI thumbnail generator with React, Express, MongoDB support, local auth, saved generations, and free Pollinations AI image generation.",
+  "description": "AI thumbnail generator with React, Express, local browser storage, and free Pollinations AI image generation.",
   "license": "MIT",
   "scripts": {
     "dev": "concurrently \"npm run dev --workspace server\" \"npm run dev --workspace client\"",

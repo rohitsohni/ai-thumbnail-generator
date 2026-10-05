@@ -103,23 +103,17 @@ When MongoDB is connected, the backend stores the generation. Without MongoDB, i
 
 ```text
 User enters a thumbnail idea
-|
-v
+↓
 React sends the request with Axios
-|
-v
+↓
 Express validates and expands the prompt
-|
-v
+↓
 Pollinations AI creates a text-free background
-|
-v
+↓
 Canvas adds the readable title overlay
-|
-v
+↓
 The browser stores the finished generation
-|
-v
+↓
 React displays the result and account history
 ```
 

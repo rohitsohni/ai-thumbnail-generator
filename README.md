@@ -122,7 +122,6 @@ Registration and sign-in are handled in the browser with LocalStorage. Usernames
 
 Each signed-in user receives a separate LocalStorage key for their saved generations.
 
-This is suitable for a demonstration project, but production authentication should use hashed passwords and server-side sessions or tokens.
 
 ## AI generation logic
 

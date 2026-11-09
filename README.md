@@ -5,7 +5,7 @@
     <img height="42" src="https://img.shields.io/badge/Open_Site-2563EB?style=for-the-badge" alt="Open Site" />
   </a>
   <br><br>
-  <img width="1280" height="720" alt="AI Thumbnail Generator registration screen" src="https://github.com/user-attachments/assets/c387c977-4338-4e61-aa45-9a79c5aaaff6" />
+  <img width="1280" height="720" alt="AI Thumbnail Generator registration screen" src="docs/preview.png" />
 </div>
 
 ## Project overview
